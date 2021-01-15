@@ -15,8 +15,7 @@ func InitRouter() *gin.Engine {
 	r.Use(core.Cors())
 	apiv1 := r.Group("/api/v1")
 	{
-		apiv1.POST("/get_address", v1.GetBidAddress)
-		apiv1.POST("/bid_address", v1.Bid)
+		apiv1.POST("/get_price", v1.GetPrice)
 	}
 
 	return r

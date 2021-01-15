@@ -62,5 +62,6 @@ type Ticker struct {
 }
 
 type PriceResp struct {
-
+	Name  string `json:"name"`
+	Price string `json:"price"`
 }

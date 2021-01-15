@@ -1,9 +1,6 @@
 package main
 
 import (
-	model "coin_price_service/models"
-	"coin_price_service/pkg/http_util"
-	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -50,7 +47,6 @@ func main() {
 	}
 
 	log.Printf("[info] start http server listening %s", endPoint)
-	GetPrice2()
 	_ = server.ListenAndServe()
 	signalNotifyExit()
 }
@@ -69,47 +65,6 @@ func signalNotifyExit() {
 			return
 		case syscall.SIGHUP:
 		default:
-			return
-		}
-	}
-}
-
-func GetPrice(c *gin.Context) {
-	var coins = []string{"bsvusdt", "htusdt", "filusdt", "ethusdt", "btcusdt", "ltcusdt", "bchusdt", "dotusdt"}
-	url := "https://api.huobi.pro/market/detail/merged?symbol="
-	var PData *model.HuoBiPrice
-	for _, v := range coins {
-		fmt.Println("price: ", url+v)
-		bytes, _ := http_util.Get(url + v)
-		_ = json.Unmarshal(bytes, &PData)
-		fmt.Println(v, ": ", PData.Tick.Close)
-	}
-}
-
-func GetPrice2() {
-	var coins = []string{"bsvusdt", "htusdt", "filusdt", "ethusdt", "btcusdt", "ltcusdt", "bchusdt", "dotusdt"}
-	url := "https://api.huobi.pro/market/detail/merged?symbol="
-	var PData model.HuoBiPrice
-	ch := make(chan []byte, len(coins))
-	quitChan := make(chan bool)
-	for _, v := range coins {
-		go func(n string) {
-			fmt.Println("name: ", n)
-			bytes, err := http_util.Get(url + n)
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			ch <- bytes[:]
-		}(v)
-	}
-	quitChan <- true
-	for {
-		select {
-		case data := <-ch:
-			json.Unmarshal(data,&PData)
-			fmt.Println("Close: ",PData.Tick.Close)
-		case <-quitChan:
 			return
 		}
 	}

@@ -55,3 +55,10 @@ func GetBidAddress(c *gin.Context) {
 	}
 	appG.Response(http.StatusOK, e.SUCCESS, service.GetBidAddress(form.Address, form.Type))
 }
+
+func GetPrice(c *gin.Context) {
+	var (
+		appG = app.Gin{C: c}
+	)
+	appG.Response(http.StatusOK, e.SUCCESS, app.GetPrice())
+}
