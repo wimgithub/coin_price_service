@@ -1,6 +1,9 @@
 package main
 
 import (
+	model "coin_price_service/models"
+	"coin_price_service/pkg/http_util"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -48,7 +51,7 @@ func main() {
 
 	log.Printf("[info] start http server listening %s", endPoint)
 	_ = server.ListenAndServe()
-
+	GetPrice(nil)
 	signalNotifyExit()
 
 }
@@ -69,5 +72,17 @@ func signalNotifyExit() {
 		default:
 			return
 		}
+	}
+}
+
+func GetPrice(c *gin.Context) {
+	var coins = []string{"bsvusdt", "htusdt", "filusdt", "ethusdt", "btcusdt", "ltcusdt", "bchusdt", "dotusdt"}
+	url := "https://api.huobi.pro/market/detail/merged?symbol="
+	var PData *model.HuoBiPrice
+	for _, v := range coins {
+		fmt.Println("price: ",url+v)
+		bytes, _ := http_util.Get(url + v)
+		_ = json.Unmarshal(bytes, &PData)
+		fmt.Println(v, ": ", PData.Tick.Close)
 	}
 }
