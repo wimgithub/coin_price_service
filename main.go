@@ -45,7 +45,6 @@ func main() {
 		WriteTimeout:   writeTimeout,
 		MaxHeaderBytes: maxHeaderBytes,
 	}
-
 	log.Printf("[info] start http server listening %s", endPoint)
 	_ = server.ListenAndServe()
 	signalNotifyExit()
