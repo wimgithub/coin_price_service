@@ -50,7 +50,7 @@ func main() {
 	}
 
 	log.Printf("[info] start http server listening %s", endPoint)
-	GetPrice(nil)
+	GetPrice2()
 	_ = server.ListenAndServe()
 	signalNotifyExit()
 }
