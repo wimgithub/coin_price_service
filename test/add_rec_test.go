@@ -158,7 +158,7 @@ func TestRedis(t *testing.T) {
 func Test(t *testing.T) {
 	var coins = []string{"bsvusdt", "htusdt", "filusdt", "ethusdt", "btcusdt", "ltcusdt", "bchusdt", "dotusdt"}
 	url := "https://api.huobi.pro/market/detail/merged?symbol="
-	//var PData model.HuoBiPrice
+	var PData model.HuoBiPrice
 	ch := make(chan []byte, len(coins))
 	for _, v := range coins {
 		go func(n string) {
@@ -174,9 +174,12 @@ func Test(t *testing.T) {
 	for {
 		select {
 		case data := <-ch:
-			fmt.Println(data)
-			//json.Unmarshal(data,&PData)
-			//fmt.Println("Close: ",PData.Tick.Close)
+			if len(data) == 0 {
+				break
+			}
+			json.Unmarshal(data,&PData)
+			fmt.Println("Close: ",PData.Tick.Close)
 		}
+		break
 	}
 }

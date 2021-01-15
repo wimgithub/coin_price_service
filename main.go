@@ -51,10 +51,8 @@ func main() {
 
 	log.Printf("[info] start http server listening %s", endPoint)
 	GetPrice(nil)
-
 	_ = server.ListenAndServe()
 	signalNotifyExit()
-
 }
 
 func signalNotifyExit() {
@@ -81,9 +79,38 @@ func GetPrice(c *gin.Context) {
 	url := "https://api.huobi.pro/market/detail/merged?symbol="
 	var PData *model.HuoBiPrice
 	for _, v := range coins {
-		fmt.Println("price: ",url+v)
+		fmt.Println("price: ", url+v)
 		bytes, _ := http_util.Get(url + v)
 		_ = json.Unmarshal(bytes, &PData)
 		fmt.Println(v, ": ", PData.Tick.Close)
+	}
+}
+
+func GetPrice2() {
+	var coins = []string{"bsvusdt", "htusdt", "filusdt", "ethusdt", "btcusdt", "ltcusdt", "bchusdt", "dotusdt"}
+	url := "https://api.huobi.pro/market/detail/merged?symbol="
+	var PData model.HuoBiPrice
+	ch := make(chan []byte, len(coins))
+	for _, v := range coins {
+		go func(n string) {
+			fmt.Println("name: ", n)
+			bytes, err := http_util.Get(url + n)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			ch <- bytes[:]
+		}(v)
+	}
+	for {
+		select {
+		case data := <-ch:
+			if len(data) == 0 {
+				break
+			}
+			json.Unmarshal(data, &PData)
+			fmt.Println("Close: ", PData.Tick.Close)
+		}
+		break
 	}
 }
