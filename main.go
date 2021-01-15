@@ -91,6 +91,7 @@ func GetPrice2() {
 	url := "https://api.huobi.pro/market/detail/merged?symbol="
 	var PData model.HuoBiPrice
 	ch := make(chan []byte, len(coins))
+	quitChan := make(chan bool)
 	for _, v := range coins {
 		go func(n string) {
 			fmt.Println("name: ", n)
@@ -102,15 +103,14 @@ func GetPrice2() {
 			ch <- bytes[:]
 		}(v)
 	}
+	quitChan <- true
 	for {
 		select {
 		case data := <-ch:
-			if len(data) == 0 {
-				break
-			}
-			json.Unmarshal(data, &PData)
-			fmt.Println("Close: ", PData.Tick.Close)
+			json.Unmarshal(data,&PData)
+			fmt.Println("Close: ",PData.Tick.Close)
+		case <-quitChan:
+			return
 		}
-		break
 	}
 }
