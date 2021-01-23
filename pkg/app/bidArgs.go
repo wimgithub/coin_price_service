@@ -45,8 +45,8 @@ func GetPrice() (price []*model.PriceResp) {
 		"bsvusdt": "BSV",
 		"htusdt":  "HT",
 		"filusdt": "FIL",
-		"ethusdt": "ETH",
-		"btcusdt": "BTC",
+		"ethusdt": "HETH",
+		"btcusdt": "HBTC",
 		"ltcusdt": "LTC",
 		"bchusdt": "BCH",
 		"dotusdt": "DOT",
@@ -64,7 +64,11 @@ func GetPrice() (price []*model.PriceResp) {
 		})
 	}
 	price = append(price, &model.PriceResp{
-		Name:  "HUSDHTCPool",
+		Name:  "HUSD",
+		Price: "1.0",
+	})
+	price = append(price, &model.PriceResp{
+		Name:  "USDT",
 		Price: "1.0",
 	})
 	return
