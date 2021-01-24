@@ -42,6 +42,36 @@ func BindArgs(c *gin.Context, obj interface{}) error {
 */
 func GetPrice() (price []*model.PriceResp) {
 	var coins = map[string]string{
+		"bsvusdt": "HBSVHTCPool",
+		"htusdt":  "HTHTCPool",
+		"filusdt": "HFILHTCPool",
+		"ethusdt": "HETHHTCPool",
+		"btcusdt": "HBTCHTCPool",
+		"ltcusdt": "HLTCHTCPool",
+		"bchusdt": "HBCHHTCPool",
+		"dotusdt": "HDOTHTCPool",
+	}
+	url := "https://api.huobi.pro/market/detail/merged?symbol="
+	var PData *model.HuoBiPrice
+
+	for k, v := range coins {
+		fmt.Println("price: ", url+k)
+		bytes, _ := http_util.Get(url + k)
+		_ = json.Unmarshal(bytes, &PData)
+		price = append(price, &model.PriceResp{
+			Name:  v,
+			Price: PData.Tick.Close.String(),
+		})
+	}
+	price = append(price, &model.PriceResp{
+		Name:  "HUSDHTCPool",
+		Price: "1.0",
+	})
+	return
+}
+
+func GetPriceV2() (price []*model.PriceResp) {
+	var coins = map[string]string{
 		"bsvusdt": "HBSV",
 		"htusdt":  "HT",
 		"filusdt": "HFIL",

@@ -62,3 +62,10 @@ func GetPrice(c *gin.Context) {
 	)
 	appG.Response(http.StatusOK, e.SUCCESS, app.GetPrice())
 }
+
+func GetPriceV2(c *gin.Context) {
+	var (
+		appG = app.Gin{C: c}
+	)
+	appG.Response(http.StatusOK, e.SUCCESS, app.GetPriceV2())
+}
