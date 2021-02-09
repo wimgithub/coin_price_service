@@ -65,3 +65,18 @@ type PriceResp struct {
 	Name  string `json:"name"`
 	Price string `json:"price"`
 }
+
+type HecoUsers struct {
+	Status  int    `json:"status"`
+	Message string `json:"message"`
+	HData   HData  `json:"data"`
+}
+
+type HData struct {
+	Data []*HData2 `json:"data"`
+}
+
+type HData2 struct {
+	Address string `json:"address"`
+	Balance string `json:"balance"`
+}

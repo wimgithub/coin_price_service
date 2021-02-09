@@ -3,7 +3,7 @@ module coin_price_service
 go 1.13
 
 require (
-	github.com/360EntSecGroup-Skylar/excelize v1.3.1-0.20180527032555-9e463b461434 // indirect
+	github.com/360EntSecGroup-Skylar/excelize v1.3.1-0.20180527032555-9e463b461434
 	github.com/PuerkitoBio/purell v1.1.1-0.20180310210909-975f53781597 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/astaxie/beego v1.9.3-0.20171218111859-f16688817aa4
