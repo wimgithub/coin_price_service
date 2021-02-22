@@ -7,15 +7,19 @@ import (
 	"coin_price_service/pkg/conversion"
 	"coin_price_service/pkg/gredis"
 	"coin_price_service/pkg/http_util"
+	"coin_price_service/pkg/rand"
 	"coin_price_service/pkg/setting"
 	"context"
+	"crypto/ecdsa"
 	"encoding/json"
 	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"io"
 	"math/big"
@@ -273,30 +277,68 @@ func TestSoli(t *testing.T) {
 
 	a := func(a []float64, size int) {
 		for i := 1; i < size; i++ {
-			fmt.Println("i: ",i)
-					//  2 > 0 &&  a[2-1]  > a[2]
-					//  2 > 0 &&   3 > 2
+			fmt.Println("i: ", i)
+			//  2 > 0 &&  a[2-1]  > a[2]
+			//  2 > 0 &&   3 > 2
 			for j := i; j > 0 && a[j-1] > a[j]; j-- {
-				fmt.Println("j:",j)
+				fmt.Println("j:", j)
 				tmp := a[j] //  2
-				fmt.Println("tmp: ",tmp)
+				fmt.Println("tmp: ", tmp)
 				a[j] = a[j-1] // 3
-				a[j-1] = tmp // 2
+				a[j-1] = tmp  // 2
 
-				fmt.Println("a: ",a)
+				fmt.Println("a: ", a)
 			}
 		}
 
-
-		fmt.Println("==============: ",a)
-
+		fmt.Println("==============: ", a)
 
 		if size%2 == 1 {
 			fmt.Println("奇数：", a[size/2])
 		} else {
 			fmt.Println("偶数：", (a[size/2]+a[size/2-1])/2)
-			fmt.Println("a[size/2] ",a[size/2]," + a[size/2-1] ",a[size/2-1]," / 2")
+			fmt.Println("a[size/2] ", a[size/2], " + a[size/2-1] ", a[size/2-1], " / 2")
 		}
 	}
-	a([]float64{114,110,},2)
+	a([]float64{114, 110,}, 2)
+}
+
+func TestSig(t *testing.T) {
+	privateKey, err := crypto.HexToECDSA("fad9c8855b740a0b7ed4c221dbad0f33a83a49cad6b3fe8d5817ac83d38b6a19")
+	if err != nil {
+		t.Log(err)
+	}
+	publicKey := privateKey.Public()
+	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+	if !ok {
+		t.Log("cannot assert type: publicKey is not of type *ecdsa.PublicKey")
+	}
+	address := crypto.PubkeyToAddress(*publicKeyECDSA).Hex()
+	fmt.Println("Address: ", address)
+/*---------------------------------------------------------------------------------*/
+	var data []byte
+	// to
+	to := common.HexToAddress("0x6C3D8C5093f399A95323A5f385bBADF2cd08531b")
+	fmt.Println("TO: ",to.String())
+	data = append(data,to.Bytes()...)
+
+	// value
+	wei := conversion.New().ToWei("1.25", 18)
+	fmt.Println("WEI: ", wei)
+	data = append(data,common.LeftPadBytes(wei.Bytes(), 32)...)
+
+	// rand
+	r := rand.GetRandomString(32)
+	fmt.Println("RAND: ",r)
+	data = append(data,[]byte(r)...)
+
+	hash := crypto.Keccak256Hash(data)
+	fmt.Println("HASH: ", hash.Hex())
+
+	signature, err := crypto.Sign(hash.Bytes(), privateKey)
+	if err != nil {
+		t.Log(err)
+	}
+
+	fmt.Println("SIG: ", hexutil.Encode(signature))
 }

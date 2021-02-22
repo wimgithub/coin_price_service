@@ -17,6 +17,7 @@ func InitRouter() *gin.Engine {
 	{
 		apiv1.GET("/get_price", v1.GetPrice)
 		apiv1.GET("/get_price_v2", v1.GetPriceV2)
+		apiv1.POST("/get_sig", v1.GetSig)
 	}
 
 	return r

@@ -1,36 +1,60 @@
 package service
 
 import (
-	model "coin_price_service/models"
-	"coin_price_service/models/mysql"
-	"coin_price_service/mysql_service"
-	"coin_price_service/pkg/e"
+	"coin_price_service/pkg/conversion"
+	"coin_price_service/pkg/rand"
+	"coin_price_service/pkg/setting"
+	"fmt"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
-func BidAddress(tron, ether string) int {
-	b := mysql_service.IsBidAddress(tron, ether)
-	if b == false {
-		return e.BID_REPEAT
-	}
-	err := mysql.SharedStore().BidInsert(&model.BidAddress{TronAddress: tron, EtherAddress: ether})
-	if err != nil {
-		return e.BID_REPEAT
-	}
-	return e.SUCCESS
+type SigResponseModel struct {
+	To    string `json:"to"`
+	Value string `json:"value"`
+	Hash  string `json:"hash"`
+	Sig   string `json:"sig"`
+	Rand  string `json:"rand"`
 }
 
-func GetBidAddress(addr, t string) string {
-	var bid []*model.BidAddress
-	if t == "1" {
-		bid, _ = mysql.SharedStore().QueryBid(&model.BidAddress{TronAddress: addr})
-		if len(bid) > 0 {
-			return bid[0].EtherAddress
-		}
-	} else if t == "2" {
-		bid, _ = mysql.SharedStore().QueryBid(&model.BidAddress{EtherAddress: addr})
-		if len(bid) > 0 {
-			return bid[0].TronAddress
-		}
+func GetSig(addr, value string) (sigModel *SigResponseModel, err error) {
+	privateKey, err := crypto.HexToECDSA(setting.EtherscanSetting.Private)
+	if err != nil {
+		return nil, err
 	}
-	return ""
+
+	var data []byte
+	// to
+	to := common.HexToAddress(addr)
+	fmt.Println("TO: ", to.String())
+	data = append(data, to.Bytes()...)
+
+	// value
+	wei := conversion.New().ToWei(value, 18)
+	fmt.Println("WEI: ", wei)
+	data = append(data, common.LeftPadBytes(wei.Bytes(), 32)...)
+
+	// rand
+	r := rand.GetRandomString(32)
+	fmt.Println("RAND: ", r)
+	data = append(data, []byte(r)...)
+
+	hash := crypto.Keccak256Hash(data)
+	fmt.Println("HASH: ", hash.Hex())
+
+	signature, err := crypto.Sign(hash.Bytes(), privateKey)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("SIG: ", hexutil.Encode(signature))
+
+	return &SigResponseModel{
+		To:    addr,
+		Value: value,
+		Hash:  hash.Hex(),
+		Sig:   hexutil.Encode(signature),
+		Rand:  r,
+	}, nil
+
 }

@@ -34,6 +34,7 @@ var MsgFlags = map[int]string{
 	BID_REPEAT:                      "重复绑定",
 	TRON_ADDR_ERROR:                 "Tron地址格式错误",
 	ETHER_ADDR_ERROR:                "Ether地址格式错误",
+	GET_SIG_ERROR:                   "签名失败",
 }
 
 // GetMsg get error information based on Code
